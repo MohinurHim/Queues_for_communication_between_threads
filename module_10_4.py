@@ -21,16 +21,18 @@ class Cafe:
         self.queue = queue.Queue() # очередь (объект класса Queue)
         self.tables = tables # столы в этом кафе
     def guest_arrival(self, *guests): # прибытие гостей
-         for guest in guests: # добавляем в очередь
-              for table in self.tables: # столы в очереди
-                    if table.guest is None: # если стол свободен
-                        table.guest = guest # сажаем гостя
-                        guest.start() # запускаем гостя в потоке
-                        print(f"{guest.name} сел(-а) за стол номер {table.number}")
-                        break
-                    else:
-                        self.queue.put(guest)
-                        print(f"{guest.name} в очереди")
+        for guest in guests:  # добавляем в очередь гостей
+            que = False  # есть ли гости в очереди
+            for table in self.tables:  # проверяем все столы в очереди
+                if table.guest is None:  # если стол свободен
+                    table.guest = guest  # сажаем гостя
+                    guest.start()  # запускаем гостя в отдельном потоке
+                    print(f"{guest.name} сел(-а) за стол номер {table.number}")
+                    que = True  # стол свободен
+                    break
+            if not que: # если же свободных столов для посадки не осталось, то помещаем гостя в очередь
+                self.queue.put(guest)
+                print(f"{guest.name} в очереди")
     def discuss_guests(self): # обслужить гостей
         for table in self.tables:
             if table.guest is not None and not table.guest.is_alive(): # Если за столом есть гость(поток) и гость(поток) закончил приём пищи
@@ -60,3 +62,6 @@ cafe = Cafe(*tables)
 cafe.guest_arrival(*guests)
 # Обслуживание гостей
 cafe.discuss_guests()
+
+  
+                  
