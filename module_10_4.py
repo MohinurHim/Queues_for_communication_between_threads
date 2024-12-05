@@ -34,16 +34,18 @@ class Cafe:
                 self.queue.put(guest)
                 print(f"{guest.name} в очереди")
     def discuss_guests(self): # обслужить гостей
-        for table in self.tables:
-            if table.guest is not None and not table.guest.is_alive(): # Если за столом есть гость(поток) и гость(поток) закончил приём пищи
-                print(f"{table.guest.name} покушал(-а) и ушёл(ушла)")
-                print(f"Стол номер {table.number} свободен")
-                table.guest = None # текущий стол освобождается
-                if not self.queue.empty(): # Если очередь ещё не пуста
-                    next_guest = self.queue.get() # следующий гость из очереди
-                    table.guest = next_guest  # текущему столу присваивается гость взятый из очереди
-                    next_guest.start()
-                    print(f"{next_guest} вышел(-ла) из очереди и сел(-а) за стол номер {table.number}")
+        while (not self.queue.empty()# проверяет пуста ли очередь
+                or any(table.guest is not None for table in self.tables)):  # проверка на пустые столы
+            for table in self.tables:
+                if table.guest is not None and not table.guest.is_alive(): # Если за столом есть гость(поток) и гость(поток) закончил приём пищи
+                    print(f"{table.guest.name} покушал(-а) и ушёл(ушла)")
+                    print(f"Стол номер {table.number} свободен")
+                    table.guest = None # текущий стол освобождается
+                    if not self.queue.empty(): # Если очередь ещё не пуста
+                        next_guest = self.queue.get() # следующий гость из очереди
+                        table.guest = next_guest  # текущему столу присваивается гость взятый из очереди
+                        next_guest.start()
+                        print(f"{next_guest.name} вышел(-ла) из очереди и сел(-а) за стол номер {table.number}")
 
 
 
@@ -62,6 +64,7 @@ cafe = Cafe(*tables)
 cafe.guest_arrival(*guests)
 # Обслуживание гостей
 cafe.discuss_guests()
+
 
   
                   
